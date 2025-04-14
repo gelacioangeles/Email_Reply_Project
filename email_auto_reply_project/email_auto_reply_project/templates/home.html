@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Auto Reply Email</title>
+    <style>
+        /* Basic reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000;
+            color: #fff;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #333;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: #50C878;
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            resize: vertical;
+            background-color: #444;
+            color: #fff;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #50C878;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #40a55d;
+        }
+
+        .inquiry-history {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .inquiry-history h3 {
+            color: #50C878;
+            margin-bottom: 15px;
+        }
+
+        .refresh-btn {
+            background-color: #50C878;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: background-color 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            background-color: #40a55d;
+        }
+
+        .inquiry-list {
+            list-style-type: decimal;
+            padding-left: 20px;
+            text-align: left;
+        }
+
+        .inquiry-item {
+            background: #555;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 5px solid #50C878;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 5px;
+        }
+
+        .answer-text {
+            font-size: 14px;
+            color: #ddd;
+        }
+    </style>
+
+    <script>
+        // Function to refresh the inquiry list by simply reloading the page
+        function refreshInquiryQuestions() {
+            location.reload();
+        }
+
+        function sendAutoReply() {
+            const emailContent = document.getElementById("emailInput").value;
+
+            fetch('/api/auto-reply/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ "content": emailContent }) 
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert("Auto-Reply: " + data.reply);
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert("Something went wrong! Please try again.");
+            });
+        }
+    </script>
+
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to the Auto Reply Email Page</h1>
+
+        <div class="input-section">
+            <textarea id="emailInput" placeholder="Enter your email here..."></textarea>
+            <br>
+            <button onclick="sendAutoReply()">Send Auto Reply Request</button>
+        </div>
+    </div>
+
+    <div class="inquiry-history">
+        <h3>All Inquiry Questions History</h3>
+        <button class="refresh-btn" onclick="refreshInquiryQuestions()">🔄 Refresh</button>
+        <ol class="inquiry-list" id="inquiryList">
+            {% for inquiry in inquiry_questions %}
+            <li class="inquiry-item">
+                <div class="question-text">
+                    <strong>Q{{ forloop.counter }}:</strong> {{ inquiry.question }}
+                </div>
+                <div class="answer-text">
+                    <strong>Answer:</strong> {{ inquiry.answer|default:"[No answer yet]" }}
+                </div>
+            </li>
+            {% empty %}
+            <li class="inquiry-item">No inquiry questions available.</li>
+            {% endfor %}
+        </ol>
+    </div>
+
+</body>
+</html>
